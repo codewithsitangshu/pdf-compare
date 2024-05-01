@@ -14,7 +14,7 @@ public class Config {
     @Getter
     private final boolean isCompareAllPages;
     @Getter @Setter
-    private boolean isTrimWhiteSpace;
+    private boolean isTrimWhiteSpace = false;
     @Getter @Setter
     private String excludeString = "";
     @Getter @Setter

@@ -11,4 +11,6 @@ public interface Comparator {
 
     ResultFormat compare(String expectedPDFPath, String actualPDFPath) throws IOException;
 
+    void setCompareMode(CompareMode mode);
+
 }

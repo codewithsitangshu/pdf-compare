@@ -13,26 +13,25 @@ public class Compare implements Comparator {
 
     private final Config config;
     @Setter
-    private CompareMode compareMode;
+    private CompareMode compareMode = CompareMode.TEXT;
 
     public Compare() {
         this.config = new Builder().build();
     }
 
-    public Compare(Builder builder) {
-        this.config = builder.build();
+    public Compare(Config config) {
+        this.config = config;
     }
 
     @Override
     public ResultFormat compare(PDDocument expectedPDF, PDDocument actualPDF) throws IOException {
-
+        ResultFormat mismatch = null;
         if(compareMode == CompareMode.TEXT) {
             ComparePDFText comparePDFText = new ComparePDFText(config,expectedPDF,actualPDF);
-            String mismatch = comparePDFText.compare();
-            System.out.println(mismatch);
+            mismatch = comparePDFText.compare();
         }
 
-        return null;
+        return mismatch;
     }
 
     @Override

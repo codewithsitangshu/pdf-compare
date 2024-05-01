@@ -31,32 +31,4 @@ public class Builder {
         return this.config;
     }
 
-    public BuilderTextCompare builderTextCompare() {
-        return new BuilderTextCompare();
-    }
-
-    public final class BuilderTextCompare {
-
-        public BuilderTextCompare setTrimWhiteSpace(boolean trimWhiteSpace) {
-            config.setTrimWhiteSpace(trimWhiteSpace);
-            return this;
-        }
-
-        public BuilderTextCompare setExcludeString(String excludeString) {
-            config.setExcludeString(excludeString);
-            return this;
-        }
-
-        public BuilderTextCompare setExcludeStringList(List<String> excludeStringList) {
-            config.setExcludeList(excludeStringList);
-            return this;
-        }
-
-        public BuilderTextCompare setRegexToExcludeString(String regexToExcludeString) {
-            config.setRegexToExclude(regexToExcludeString);
-            return this;
-        }
-
-    }
-
 }

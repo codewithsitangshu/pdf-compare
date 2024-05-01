@@ -13,9 +13,6 @@ import java.util.regex.Matcher;
 public class PDFText {
 
     private PDFTextStripper stripper;
-    private String exclude = "";
-    private List<String> excludeList;
-    private String regexToExclude = "";
     private PDDocument document;
     private final Config config;
     private int currentPage = 1;
@@ -41,27 +38,23 @@ public class PDFText {
     public String extractText() {
 
         setPDFTextStripper();
-        /*if (!this.config.isCompareAllPages()) {
-            setStartPage(this.config.getStartPage())
-                    .setEndPage(this.config.getEndPage());
-        }*/
 
         String pdfText = getText(this.currentPage,
                 this.config.isTrimWhiteSpace());
 
-        if (!exclude.isEmpty()) {
-            pdfText = pdfText.replaceAll(exclude, "");
+        if (!config.getExcludeString().isEmpty()) {
+            pdfText = pdfText.replaceAll(config.getExcludeString(), "");
         }
 
-        if (excludeList != null) {
-            for (String text : excludeList) {
+        if (config.getExcludeList() != null) {
+            for (String text : config.getExcludeList()) {
                 pdfText = pdfText.replaceAll(text, "");
             }
         }
 
-        if (!regexToExclude.isEmpty()) {
+        if (!config.getRegexToExclude().isEmpty()) {
             // Compile the regex pattern
-            Pattern pattern = Pattern.compile(regexToExclude);
+            Pattern pattern = Pattern.compile(config.getRegexToExclude());
             // Create a matcher with the input text
             Matcher matcher = pattern.matcher(pdfText);
             // Replace all matches with an empty string to exclude them
@@ -69,21 +62,6 @@ public class PDFText {
         }
 
         return pdfText;
-    }
-
-    private PDFText excludeText(String exclude) {
-        this.exclude = exclude;
-        return this;
-    }
-
-    private PDFText excludeText(List<String> excludeList) {
-        this.excludeList = excludeList;
-        return this;
-    }
-
-    private PDFText excludeRegex(String regexToExclude) {
-        this.regexToExclude = regexToExclude;
-        return this;
     }
 
     private PDFText setPDFTextStripper() {

@@ -3,12 +3,12 @@ package com.org.codewithsitangshu.pdf.compare;
 import com.org.codewithsitangshu.pdf.config.Config;
 import com.org.codewithsitangshu.pdf.extract.text.PDFText;
 import com.org.codewithsitangshu.pdf.result.ResultFormat;
-import com.org.codewithsitangshu.pdf.result.text.ComparisonResultText;
-import com.org.codewithsitangshu.pdf.result.text.DifferenceText;
+import com.org.codewithsitangshu.pdf.result.ResultFormatText;
+import com.org.codewithsitangshu.pdf.result.Difference;
 import com.org.codewithsitangshu.pdf.util.PDFPages;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,8 +20,8 @@ public class ComparePDFText {
     private final PDDocument actualPDF;
     private final PDFPages pdfPages;
     private final PDFText pdfText;
-    private ResultFormat resultFormat;
-    private Map<Integer, List<DifferenceText<Object>>> allMismatch = new HashMap<>();
+    private ResultFormatText resultFormatText;
+    private Map<Integer, List<Difference<Object>>> allMismatch = new HashMap<>();
 
 
     public ComparePDFText(Config config, PDDocument expectedPDF, PDDocument actualPDF) {
@@ -30,10 +30,10 @@ public class ComparePDFText {
         this.actualPDF = actualPDF;
         this.pdfPages = new PDFPages();
         this.pdfText = new PDFText(this.config);
-        this.resultFormat = new ComparisonResultText();
+        this.resultFormatText = new ResultFormatText();
     }
 
-    public String compare() {
+    public ResultFormat compare() {
 
         int pageCountExpectedPDF = pdfPages.getCount(this.expectedPDF);
         int pageCountActualPDF = pdfPages.getCount(this.actualPDF);
@@ -46,21 +46,38 @@ public class ComparePDFText {
         StringBuilder allMismatchText = new StringBuilder();
 
         while (currentPage <= endPage) {
-            String expectedPDFText = this.pdfText.setDocument(this.expectedPDF).extractText();
-            String actualPDFText = this.pdfText.setDocument(this.actualPDF).extractText();
-            List<DifferenceText<Object>> difference = this.resultFormat.compareText(expectedPDFText,actualPDFText);
-            allMismatch.put(currentPage, difference);
-
-            allMismatchText.append("Page ").append(currentPage).append(":").append("\n\n");
-
-            for (DifferenceText<Object> mismatch : difference) {
-                allMismatchText.append("Line ").append(mismatch.getLineNumber()).append(":").append("\n");
-                allMismatchText.append("Expected String : ").append(mismatch.getExpected()).append("\n");
-                allMismatchText.append("Actual String : ").append(mismatch.getActual()).append("\n");
+            String expectedPDFText = this.pdfText.setDocument(this.expectedPDF)
+                    .setCurrentPage(currentPage)
+                    .extractText();
+            String actualPDFText = this.pdfText.setDocument(this.actualPDF)
+                    .setCurrentPage(currentPage)
+                    .extractText();
+            boolean compareFlag = compareText(expectedPDFText,actualPDFText);
+            if(compareFlag) {
+                List<Difference<Object>> difference = new ArrayList<>();
+                difference.addAll(this.resultFormatText.getDifference());
+                this.resultFormatText.setAllDifference(currentPage,difference);
             }
 
             currentPage++;
         }
-        return allMismatchText.toString();
+        return this.resultFormatText;
+    }
+
+    private boolean compareText(String expectedText, String actualText) {
+        String[] expected = expectedText.split("\n");
+        String[] actual = actualText.split("\n");
+        int maxLength = Math.max(expected.length, actual.length);
+        boolean compareFlag = false;
+
+        for (int index = 0; index < maxLength; index++) {
+            String lineExpected = (index < expected.length) ? expected[index] : "";
+            String lineActual = (index < actual.length) ? actual[index] : "";
+            if (!lineExpected.equals(lineActual)) {
+                this.resultFormatText.setDifference(lineExpected,lineActual,index+1);
+                compareFlag = true;
+            }
+        }
+        return compareFlag;
     }
 }
