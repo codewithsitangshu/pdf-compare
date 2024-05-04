@@ -2,16 +2,14 @@ package com.org.codewithsitangshu.pdf.compare;
 
 import com.org.codewithsitangshu.pdf.config.Config;
 import com.org.codewithsitangshu.pdf.extract.text.PDFText;
+import com.org.codewithsitangshu.pdf.result.Difference;
 import com.org.codewithsitangshu.pdf.result.ResultFormat;
 import com.org.codewithsitangshu.pdf.result.ResultFormatText;
-import com.org.codewithsitangshu.pdf.result.Difference;
 import com.org.codewithsitangshu.pdf.util.PDFPages;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ComparePDFText {
 
@@ -21,7 +19,7 @@ public class ComparePDFText {
     private final PDFPages pdfPages;
     private final PDFText pdfText;
     private ResultFormatText resultFormatText;
-    private Map<Integer, List<Difference<Object>>> allMismatch = new HashMap<>();
+    private List<Integer> pages;
 
 
     public ComparePDFText(Config config, PDDocument expectedPDF, PDDocument actualPDF) {
@@ -37,30 +35,34 @@ public class ComparePDFText {
 
         int pageCountExpectedPDF = pdfPages.getCount(this.expectedPDF);
         int pageCountActualPDF = pdfPages.getCount(this.actualPDF);
-        int maxPageCount = Math.max(pageCountExpectedPDF, pageCountActualPDF);
 
-        int startPage = this.config.getStartPage();
-        int endPage = this.config.isCompareAllPages() ? maxPageCount : this.config.getEndPage();
+        if(this.config.isCompareAllPages()) {
+            int startPage = this.config.getStartPage();
+            int endPage = Math.min(pageCountExpectedPDF, pageCountActualPDF);
+            this.pages = extractPageNumbers(startPage,endPage);
+        } else if (this.config.getSpecificPages() != null) {
+            this.pages = this.config.getSpecificPages();
+        } else {
+            int startPage = this.config.getStartPage();
+            int endPage = this.config.getEndPage();
+            this.pages = extractPageNumbers(startPage,endPage);
+        }
 
-        int currentPage = startPage;
-        StringBuilder allMismatchText = new StringBuilder();
-
-        while (currentPage <= endPage) {
+        this.pages.forEach(pageNumber -> {
             String expectedPDFText = this.pdfText.setDocument(this.expectedPDF)
-                    .setCurrentPage(currentPage)
+                    .setCurrentPage(pageNumber)
                     .extractText();
             String actualPDFText = this.pdfText.setDocument(this.actualPDF)
-                    .setCurrentPage(currentPage)
+                    .setCurrentPage(pageNumber)
                     .extractText();
             boolean compareFlag = compareText(expectedPDFText,actualPDFText);
             if(compareFlag) {
                 List<Difference<Object>> difference = new ArrayList<>();
                 difference.addAll(this.resultFormatText.getDifference());
-                this.resultFormatText.setAllDifference(currentPage,difference);
+                this.resultFormatText.setAllDifference(pageNumber,difference);
             }
+        });
 
-            currentPage++;
-        }
         return this.resultFormatText;
     }
 
@@ -79,5 +81,13 @@ public class ComparePDFText {
             }
         }
         return compareFlag;
+    }
+
+    private List<Integer> extractPageNumbers(int startPage, int endPage) {
+        List<Integer> pages = new ArrayList<>();
+        for (int page = startPage; page <= endPage; page++) {
+            pages.add(page);
+        }
+        return pages;
     }
 }

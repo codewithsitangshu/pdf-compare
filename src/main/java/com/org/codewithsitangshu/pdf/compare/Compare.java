@@ -29,6 +29,9 @@ public class Compare implements Comparator {
         if(compareMode == CompareMode.TEXT) {
             ComparePDFText comparePDFText = new ComparePDFText(config,expectedPDF,actualPDF);
             mismatch = comparePDFText.compare();
+        } else if (compareMode == CompareMode.VISUAL) {
+            ComparePDFVisual comparePDFVisual = new ComparePDFVisual(config,expectedPDF,actualPDF);
+            mismatch = comparePDFVisual.compare();
         }
 
         return mismatch;

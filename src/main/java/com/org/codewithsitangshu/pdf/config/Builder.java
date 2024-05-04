@@ -1,6 +1,5 @@
 package com.org.codewithsitangshu.pdf.config;
 
-
 import java.util.List;
 
 public class Builder {
@@ -8,7 +7,7 @@ public class Builder {
     private int startPage = 1;
     private int endPage = -1;
     private boolean isCompareAllPages = true;
-    private Config config;
+    private List<Integer> specificPages = null;
 
 
     public Builder setStartPage(int startPage) {
@@ -21,14 +20,18 @@ public class Builder {
         return this;
     }
 
+    public Builder setSpecificPages(List<Integer> pages) {
+        this.specificPages = pages;
+        return this;
+    }
+
     public Builder setCompareAllPages(boolean compareAllPages) {
         isCompareAllPages = compareAllPages;
         return this;
     }
 
     public Config build() {
-        this.config = new Config(isCompareAllPages, startPage, endPage);
-        return this.config;
+        return new Config(isCompareAllPages, startPage, endPage, specificPages);
     }
 
 }
