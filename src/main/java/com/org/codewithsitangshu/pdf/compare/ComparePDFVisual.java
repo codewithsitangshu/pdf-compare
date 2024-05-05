@@ -16,8 +16,8 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ComparePDFVisual {
 
@@ -33,8 +33,15 @@ public class ComparePDFVisual {
     private ResultFormatVisual resultFormatVisual;
     private StoreImageInPDF storeImageInPDF;
     private ConvertImageToBlackAndWhite convertImageToBlackAndWhite;
+    private static final Logger LOGGER = Logger.getLogger(ComparePDFVisual.class.getName());
 
-
+    /**
+     * Constructs a ComparePDFVisual object with the specified configuration and PDF documents.
+     *
+     * @param config      The configuration for comparison.
+     * @param expectedPDF The expected PDF document.
+     * @param actualPDF   The actual PDF document.
+     */
     public ComparePDFVisual(Config config, PDDocument expectedPDF, PDDocument actualPDF) {
         this.config = config;
         this.expectedPDF = expectedPDF;
@@ -50,11 +57,19 @@ public class ComparePDFVisual {
         this.actualPDFRenderer = new PDFRenderer(this.actualPDF);
     }
 
+    /**
+     * Compares the visual content of the PDF documents.
+     *
+     * @return The result format containing the differences.
+     * @throws IOException If an I/O error occurs.
+     */
     public ResultFormat compare() throws IOException {
+        LOGGER.log(Level.INFO, "Starting visual comparison...");
 
         int pageCountExpectedPDF = pdfPages.getCount(this.expectedPDF);
         int pageCountActualPDF = pdfPages.getCount(this.actualPDF);
 
+        // Determine pages to compare based on configuration
         if (this.config.isCompareAllPages()) {
             int startPage = this.config.getStartPage();
             int endPage = Math.min(pageCountExpectedPDF, pageCountActualPDF);
@@ -67,6 +82,7 @@ public class ComparePDFVisual {
             this.pages = extractPageNumbers(startPage, endPage);
         }
 
+        // Compare images on each page
         this.pages.forEach(page -> {
             try {
                 BufferedImage expectedImage = this.pdfPageAsImage.setPDFRenderer(this.expectedPDFRenderer)
@@ -82,10 +98,11 @@ public class ComparePDFVisual {
                 BufferedImage scaledExpectedImage = this.scaleImage.scale(expectedImage, width, height);
                 BufferedImage scaledActualImage = this.scaleImage.scale(actualImage, width, height);
 
-                //Compare Image
+                // Compare Images
                 compareImage(scaledExpectedImage, scaledActualImage, width, height);
 
             } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, "Error comparing images on page " + page, e);
                 throw new RuntimeException(e);
             }
         });
@@ -96,15 +113,26 @@ public class ComparePDFVisual {
                     try {
                         this.storeImageInPDF.store((BufferedImage) diff.getDifference());
                     } catch (IOException e) {
+                        LOGGER.log(Level.SEVERE, "Error storing result image in PDF", e);
                         throw new RuntimeException(e);
                     }
                 });
 
+        this.storeImageInPDF.closeResultPDF();
+        LOGGER.log(Level.INFO, "Visual comparison completed.");
         return this.resultFormatVisual;
     }
 
+    /**
+     * Compares two images and stores the differences in the result format.
+     *
+     * @param scaledExpectedImage The scaled expected image.
+     * @param scaledActualImage   The scaled actual image.
+     * @param width               The width of the images.
+     * @param height              The height of the images.
+     */
     private void compareImage(BufferedImage scaledExpectedImage, BufferedImage scaledActualImage, int width, int height) {
-        //Compare Images
+        // Compare Images
         int mismatchCount = 0;
 
         BufferedImage diffImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -125,6 +153,7 @@ public class ComparePDFVisual {
         double totalPixels = width * height;
         double mismatchPercentage = (mismatchCount / totalPixels) * 100;
 
+        // Convert image to black and white if mismatch percentage is within threshold
         if (mismatchPercentage <= config.getThreshold()) {
             diffImage = this.convertImageToBlackAndWhite.convert(scaledExpectedImage);
         }
@@ -132,6 +161,13 @@ public class ComparePDFVisual {
         this.resultFormatVisual.setDifference(scaledExpectedImage, scaledActualImage, diffImage, mismatchPercentage);
     }
 
+    /**
+     * Extracts the page numbers to be compared.
+     *
+     * @param startPage The starting page number.
+     * @param endPage   The ending page number.
+     * @return The list of page numbers.
+     */
     private List<Integer> extractPageNumbers(int startPage, int endPage) {
         List<Integer> pages = new ArrayList<>();
         for (int page = startPage; page <= endPage; page++) {
@@ -139,5 +175,4 @@ public class ComparePDFVisual {
         }
         return pages;
     }
-
 }
