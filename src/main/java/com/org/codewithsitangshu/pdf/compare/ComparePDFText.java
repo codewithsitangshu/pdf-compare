@@ -51,34 +51,36 @@ public class ComparePDFText {
         int pageCountExpectedPDF = pdfPages.getCount(this.expectedPDF);
         int pageCountActualPDF = pdfPages.getCount(this.actualPDF);
 
-        // Determine pages to compare based on configuration
-        if (this.config.isCompareAllPages()) {
-            int startPage = this.config.getStartPage();
-            int endPage = Math.min(pageCountExpectedPDF, pageCountActualPDF);
-            this.pages = extractPageNumbers(startPage, endPage);
-        } else if (this.config.getSpecificPages() != null) {
-            this.pages = this.config.getSpecificPages();
-        } else {
-            int startPage = this.config.getStartPage();
-            int endPage = this.config.getEndPage();
-            this.pages = extractPageNumbers(startPage, endPage);
-        }
+        this.pages = pdfPages.calculatePages(config, expectedPDF, actualPDF);
 
         // Compare text on each page
         this.pages.forEach(pageNumber -> {
             try {
-                String expectedPDFText = this.pdfText.setDocument(this.expectedPDF)
-                        .setCurrentPage(pageNumber)
-                        .extractText();
-                String actualPDFText = this.pdfText.setDocument(this.actualPDF)
-                        .setCurrentPage(pageNumber)
-                        .extractText();
-                boolean compareFlag = compareText(expectedPDFText, actualPDFText);
-                if (compareFlag) {
-                    List<Difference<Object>> difference = new ArrayList<>();
-                    difference.addAll(this.resultFormatText.getDifference());
-                    this.resultFormatText.setAllDifference(pageNumber, difference);
+                String expectedPDFText = "";
+                String actualPDFText = "";
+                List<Difference<Object>> difference = new ArrayList<>();
+
+                if (pageNumber > pageCountExpectedPDF) {
+                    expectedPDFText = "No text. Page exceed expected pdf page count.";
+                    actualPDFText = this.pdfText.setDocument(this.actualPDF)
+                            .setCurrentPage(pageNumber).extractText();
+                    difference.add(Difference.of(expectedPDFText, actualPDFText, 1));
+                } else if (pageNumber > pageCountActualPDF) {
+                    expectedPDFText = this.pdfText.setDocument(this.expectedPDF)
+                            .setCurrentPage(pageNumber).extractText();
+                    actualPDFText = "No text. Page exceed actual pdf page count.";
+                    difference.add(Difference.of(expectedPDFText, actualPDFText, 1));
+                } else {
+                    expectedPDFText = this.pdfText.setDocument(this.expectedPDF)
+                            .setCurrentPage(pageNumber).extractText();
+                    actualPDFText = this.pdfText.setDocument(this.actualPDF)
+                            .setCurrentPage(pageNumber).extractText();
+                    boolean compareFlag = compareText(expectedPDFText, actualPDFText);
+                    if (compareFlag) {
+                        difference.addAll(this.resultFormatText.getDifference());
+                    }
                 }
+                this.resultFormatText.setAllDifference(pageNumber, difference);
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, "Error comparing text on page " + pageNumber, e);
             }
@@ -114,18 +116,5 @@ public class ComparePDFText {
         return compareFlag;
     }
 
-    /**
-     * Extracts page numbers between startPage and endPage inclusively.
-     *
-     * @param startPage The starting page number.
-     * @param endPage   The ending page number.
-     * @return The list of extracted page numbers.
-     */
-    private List<Integer> extractPageNumbers(int startPage, int endPage) {
-        List<Integer> pages = new ArrayList<>();
-        for (int page = startPage; page <= endPage; page++) {
-            pages.add(page);
-        }
-        return pages;
-    }
+
 }
