@@ -8,7 +8,16 @@
   <packaging>jar</packaging>
 
   <name>pdf-compare</name>
-  <url>http://maven.apache.org</url>
+  <description>pdf-compare is a java based library to compare pdfs both in textual and visual way</description>
+  <url>https://github.com/codewithsitangshu/pdf-compare</url>
+
+  <licenses>
+    <license>
+      <name>The MIT License (MIT)</name>
+      <url>https://opensource.org/licenses/MIT</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -76,5 +85,21 @@
       <url>https://maven.pkg.github.com/codewithsitangshu/pdf-compare</url>
     </repository>
   </distributionManagement>
+
+  <developers>
+    <developer>
+      <name>Sitangshu Pal</name>
+      <email>iam.sitangshu.pal@gmail.com</email>
+      <organization>io.github.library</organization>
+      <organizationUrl>https://github.com/codewithsitangshu</organizationUrl>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:https://github.com/codewithsitangshu/pdf-compare.git</connection>
+    <developerConnection>scm:git:https://github.com/codewithsitangshu/pdf-compare.git</developerConnection>
+    <url>https://github.com/codewithsitangshu/pdf-compare</url>
+  </scm>
+
 
 </project>
