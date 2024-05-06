@@ -1,12 +1,9 @@
 package com.org.codewithsitangshu.pdf.util;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.font.TextLayout;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 
 public class AddTextToImage {
 

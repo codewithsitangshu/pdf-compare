@@ -3,7 +3,6 @@ package com.org.codewithsitangshu.pdf.compare;
 import com.org.codewithsitangshu.pdf.config.Config;
 import com.org.codewithsitangshu.pdf.extract.images.PDFPageAsImage;
 import com.org.codewithsitangshu.pdf.extract.images.ScaleImage;
-import com.org.codewithsitangshu.pdf.result.Difference;
 import com.org.codewithsitangshu.pdf.result.ResultFormat;
 import com.org.codewithsitangshu.pdf.result.ResultFormatVisual;
 import com.org.codewithsitangshu.pdf.util.AddTextToImage;
@@ -16,7 +15,6 @@ import org.apache.pdfbox.rendering.PDFRenderer;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -147,10 +145,18 @@ public class ComparePDFVisual {
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                if (scaledExpectedImage.getRGB(x, y) != scaledActualImage.getRGB(x, y)) {
-                    // If pixel is different, mark it in red on the diffImage
+                int expectedRGB = scaledExpectedImage.getRGB(x, y);
+                int actualRGB = scaledActualImage.getRGB(x, y);
+
+                // If pixel is different, mark it in red on the diffImage
+                if (expectedRGB != actualRGB) {
                     diffImage.setRGB(x, y, Color.RED.getRGB());
                     mismatchCount++;
+                } else {
+                    // If pixel is the same, set it to black or white based on the original image
+                    int grayscaleValue = (expectedRGB >> 16) & 0xff; // Extract red channel
+                    int newRGB = (grayscaleValue > 128) ? Color.WHITE.getRGB() : Color.BLACK.getRGB();
+                    diffImage.setRGB(x, y, newRGB);
                 }
             }
         }
@@ -158,11 +164,6 @@ public class ComparePDFVisual {
         // Calculate percentage mismatch
         double totalPixels = width * height;
         double mismatchPercentage = (mismatchCount / totalPixels) * 100;
-
-        // Convert image to black and white if mismatch percentage is within threshold
-        if (mismatchPercentage <= config.getThreshold()) {
-            diffImage = this.convertImageToBlackAndWhite.convert(scaledExpectedImage);
-        }
 
         this.resultFormatVisual.setDifference(scaledExpectedImage, scaledActualImage, diffImage, mismatchPercentage);
     }

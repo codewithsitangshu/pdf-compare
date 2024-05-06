@@ -26,7 +26,7 @@ public class Config {
     @Getter @Setter
     private int dpi = 300;
     @Getter @Setter
-    private int threshold = 0;
+    private double threshold = 0;
     @Getter @Setter
     private String savePDFPath = "Result.pdf";
 

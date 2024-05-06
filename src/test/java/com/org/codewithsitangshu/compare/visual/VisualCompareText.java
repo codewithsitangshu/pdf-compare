@@ -6,13 +6,13 @@ import com.org.codewithsitangshu.pdf.compare.CompareMode;
 import com.org.codewithsitangshu.pdf.config.Builder;
 import com.org.codewithsitangshu.pdf.config.Config;
 import com.org.codewithsitangshu.pdf.result.ResultFormat;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static com.org.codewithsitangshu.pdf.assertion.Assertion.assertThat;
 
 public class VisualCompareText {
 
@@ -27,12 +27,7 @@ public class VisualCompareText {
         String actualPdf = "src/test/resources/image-compare/sample2.pdf";
         ResultFormat resultFormat = comparator.compare(expectedPdf,actualPdf);
 
-        Assert.assertTrue(
-                resultFormat.getDifference()
-                        .stream()
-                        .filter(diff -> diff.getMismatchPercentage() > 0)
-                        .collect(Collectors.toList()).size() == 0, "Mismatch is there. Please see the result pdf"
-        );
+        assertThat(resultFormat).hasVisualMismatch();
 
     }
 
@@ -42,7 +37,7 @@ public class VisualCompareText {
         Config config = new Builder()
                 .setCompareAllPages(false)
                 .setStartPage(2)
-                .setEndPage(3)
+                .setEndPage(4)
                 .build();
         config.setSavePDFPath("src/test/resources/text-compare/result_start_end.pdf");
         Comparator comparator = new Compare(config);
@@ -52,12 +47,7 @@ public class VisualCompareText {
         String actualPdf = "src/test/resources/text-compare/actual.pdf";
         ResultFormat resultFormat = comparator.compare(expectedPdf,actualPdf);
 
-        Assert.assertTrue(
-                resultFormat.getDifference()
-                        .stream()
-                        .filter(diff -> diff.getMismatchPercentage() > 0)
-                        .collect(Collectors.toList()).size() == 0, "Mismatch is there. Please see the result pdf"
-        );
+        assertThat(resultFormat).hasVisualMismatch();
 
     }
 
@@ -77,19 +67,14 @@ public class VisualCompareText {
         String actualPdf = "src/test/resources/text-compare/actual.pdf";
         ResultFormat resultFormat = comparator.compare(expectedPdf,actualPdf);
 
-        Assert.assertTrue(
-                resultFormat.getDifference()
-                        .stream()
-                        .filter(diff -> diff.getMismatchPercentage() > 0)
-                        .collect(Collectors.toList()).size() == 0, "Mismatch is there. Please see the result pdf"
-        );
+        assertThat(resultFormat).hasVisualMismatch();
 
     }
 
     @Test
     public void comparePDFWithThreshold() throws IOException {
 
-        int threshold = 2;
+        double threshold = 0.1;
         Config config = new Builder()
                 .setCompareAllPages(true)
                 .build();
@@ -102,12 +87,7 @@ public class VisualCompareText {
         String actualPdf = "src/test/resources/text-compare/actual.pdf";
         ResultFormat resultFormat = comparator.compare(expectedPdf,actualPdf);
 
-        Assert.assertTrue(
-                resultFormat.getDifference()
-                        .stream()
-                        .filter(diff -> diff.getMismatchPercentage() > threshold)
-                        .collect(Collectors.toList()).size() == 0, "Mismatch is there. Please see the result pdf"
-        );
+        assertThat(resultFormat).hasVisualMismatch(threshold);
 
     }
 

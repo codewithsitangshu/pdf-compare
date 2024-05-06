@@ -1,7 +1,5 @@
 package com.org.codewithsitangshu.compare.text;
 
-import com.org.codewithsitangshu.pdf.assertion.Assertion;
-import com.org.codewithsitangshu.pdf.assertion.TextAssert;
 import com.org.codewithsitangshu.pdf.compare.Comparator;
 import com.org.codewithsitangshu.pdf.compare.Compare;
 import com.org.codewithsitangshu.pdf.compare.CompareMode;
@@ -9,7 +7,6 @@ import com.org.codewithsitangshu.pdf.config.Builder;
 import com.org.codewithsitangshu.pdf.config.Config;
 import com.org.codewithsitangshu.pdf.result.Difference;
 import com.org.codewithsitangshu.pdf.result.ResultFormat;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -17,9 +14,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class TextCompareTest {
+import static com.org.codewithsitangshu.pdf.assertion.Assertion.assertThat;
 
-    Assertion assertion = new TextAssert();
+public class TextCompareTest {
 
     @Test
     public void compareTextWithDefaultBuilder() throws IOException {
@@ -28,11 +25,14 @@ public class TextCompareTest {
 
         String expectedPdf = "src/test/resources/text-compare/expected.pdf";
         String actualPdf = "src/test/resources/text-compare/actual.pdf";
-        ResultFormat resultFormat = comparator.compare(expectedPdf,actualPdf);
-        Map<Integer, List<Difference<Object>>> allDifference = resultFormat.getAllDifferences();
-        boolean flag = assertion.isDifference(allDifference);
+        ResultFormat resultFormat = comparator.compare(expectedPdf, actualPdf);
+
+        //Assertion for text mismatch
+        boolean flag = assertThat(resultFormat).hasTextMismatch();
+
         //Print Differences
-        if(flag) {
+        Map<Integer, List<Difference<Object>>> allDifference = resultFormat.getAllDifferences();
+        if (flag) {
             StringBuilder allMismatchText = new StringBuilder();
             allDifference.forEach((page, differences) -> {
                 allMismatchText.append("Page ").append(page).append(":").append("\n\n");
@@ -44,12 +44,9 @@ public class TextCompareTest {
                 allMismatchText.append("\n\n\n");
             });
             System.out.println(allMismatchText);
-        }
-        else {
+        } else {
             System.out.println("No differences. Good to go.");
         }
-
-        Assert.assertFalse(flag, "PDFs have differences. Please check");
 
     }
 
@@ -64,21 +61,28 @@ public class TextCompareTest {
 
         String expectedPdf = "src/test/resources/text-compare/expected.pdf";
         String actualPdf = "src/test/resources/text-compare/actual.pdf";
-        ResultFormat resultFormat = comparator.compare(expectedPdf,actualPdf);
+        ResultFormat resultFormat = comparator.compare(expectedPdf, actualPdf);
 
+        //Assertion for text mismatch
+        boolean flag = assertThat(resultFormat).hasTextMismatch();
+
+        //Print Differences
         Map<Integer, List<Difference<Object>>> allDifference = resultFormat.getAllDifferences();
-        StringBuilder allMismatchText = new StringBuilder();
-        allDifference.forEach((page,differences) -> {
-            allMismatchText.append("Page ").append(page).append(":").append("\n\n");
-            for (Difference<Object> difference : differences) {
-                allMismatchText.append("Line ").append(difference.getLineNumber()).append(":").append("\n");
-                allMismatchText.append("Expected String : ").append(difference.getExpected()).append("\n");
-                allMismatchText.append("Actual String : ").append(difference.getActual()).append("\n");
-            }
-            allMismatchText.append("\n\n\n");
-        });
-
-        System.out.println(allMismatchText);
+        if (flag) {
+            StringBuilder allMismatchText = new StringBuilder();
+            allDifference.forEach((page, differences) -> {
+                allMismatchText.append("Page ").append(page).append(":").append("\n\n");
+                for (Difference<Object> difference : differences) {
+                    allMismatchText.append("Line ").append(difference.getLineNumber()).append(":").append("\n");
+                    allMismatchText.append("Expected String : ").append(difference.getExpected()).append("\n");
+                    allMismatchText.append("Actual String : ").append(difference.getActual()).append("\n");
+                }
+                allMismatchText.append("\n\n\n");
+            });
+            System.out.println(allMismatchText);
+        } else {
+            System.out.println("No differences. Good to go.");
+        }
 
     }
 
@@ -96,28 +100,35 @@ public class TextCompareTest {
 
         String expectedPdf = "src/test/resources/text-compare/expected.pdf";
         String actualPdf = "src/test/resources/text-compare/actual.pdf";
-        ResultFormat resultFormat = comparator.compare(expectedPdf,actualPdf);
+        ResultFormat resultFormat = comparator.compare(expectedPdf, actualPdf);
 
+        //Assertion for text mismatch
+        boolean flag = assertThat(resultFormat).hasTextMismatch();
+
+        //Print Differences
         Map<Integer, List<Difference<Object>>> allDifference = resultFormat.getAllDifferences();
-        StringBuilder allMismatchText = new StringBuilder();
-        allDifference.forEach((page,differences) -> {
-            allMismatchText.append("Page ").append(page).append(":").append("\n\n");
-            for (Difference<Object> difference : differences) {
-                allMismatchText.append("Line ").append(difference.getLineNumber()).append(":").append("\n");
-                allMismatchText.append("Expected String : ").append(difference.getExpected()).append("\n");
-                allMismatchText.append("Actual String : ").append(difference.getActual()).append("\n");
-            }
-            allMismatchText.append("\n\n\n");
-        });
-
-        System.out.println(allMismatchText);
+        if (flag) {
+            StringBuilder allMismatchText = new StringBuilder();
+            allDifference.forEach((page, differences) -> {
+                allMismatchText.append("Page ").append(page).append(":").append("\n\n");
+                for (Difference<Object> difference : differences) {
+                    allMismatchText.append("Line ").append(difference.getLineNumber()).append(":").append("\n");
+                    allMismatchText.append("Expected String : ").append(difference.getExpected()).append("\n");
+                    allMismatchText.append("Actual String : ").append(difference.getActual()).append("\n");
+                }
+                allMismatchText.append("\n\n\n");
+            });
+            System.out.println(allMismatchText);
+        } else {
+            System.out.println("No differences. Good to go.");
+        }
 
     }
 
     @Test
     public void compareTextWithSpecificPages() throws IOException {
 
-        List<Integer> pages = Arrays.asList(2,4);
+        List<Integer> pages = Arrays.asList(2, 4);
 
         Config config = new Builder()
                 .setCompareAllPages(false)
@@ -129,21 +140,28 @@ public class TextCompareTest {
 
         String expectedPdf = "src/test/resources/text-compare/expected.pdf";
         String actualPdf = "src/test/resources/text-compare/actual.pdf";
-        ResultFormat resultFormat = comparator.compare(expectedPdf,actualPdf);
+        ResultFormat resultFormat = comparator.compare(expectedPdf, actualPdf);
 
+        //Assertion for text mismatch
+        boolean flag = assertThat(resultFormat).hasTextMismatch();
+
+        //Print Differences
         Map<Integer, List<Difference<Object>>> allDifference = resultFormat.getAllDifferences();
-        StringBuilder allMismatchText = new StringBuilder();
-        allDifference.forEach((page,differences) -> {
-            allMismatchText.append("Page ").append(page).append(":").append("\n\n");
-            for (Difference<Object> difference : differences) {
-                allMismatchText.append("Line ").append(difference.getLineNumber()).append(":").append("\n");
-                allMismatchText.append("Expected String : ").append(difference.getExpected()).append("\n");
-                allMismatchText.append("Actual String : ").append(difference.getActual()).append("\n");
-            }
-            allMismatchText.append("\n\n\n");
-        });
-
-        System.out.println(allMismatchText);
+        if (flag) {
+            StringBuilder allMismatchText = new StringBuilder();
+            allDifference.forEach((page, differences) -> {
+                allMismatchText.append("Page ").append(page).append(":").append("\n\n");
+                for (Difference<Object> difference : differences) {
+                    allMismatchText.append("Line ").append(difference.getLineNumber()).append(":").append("\n");
+                    allMismatchText.append("Expected String : ").append(difference.getExpected()).append("\n");
+                    allMismatchText.append("Actual String : ").append(difference.getActual()).append("\n");
+                }
+                allMismatchText.append("\n\n\n");
+            });
+            System.out.println(allMismatchText);
+        } else {
+            System.out.println("No differences. Good to go.");
+        }
 
     }
 
@@ -160,21 +178,28 @@ public class TextCompareTest {
 
         String expectedPdf = "src/test/resources/text-compare/expected.pdf";
         String actualPdf = "src/test/resources/text-compare/actual.pdf";
-        ResultFormat resultFormat = comparator.compare(expectedPdf,actualPdf);
+        ResultFormat resultFormat = comparator.compare(expectedPdf, actualPdf);
 
+        //Assertion for text mismatch
+        boolean flag = assertThat(resultFormat).hasTextMismatch();
+
+        //Print Differences
         Map<Integer, List<Difference<Object>>> allDifference = resultFormat.getAllDifferences();
-        StringBuilder allMismatchText = new StringBuilder();
-        allDifference.forEach((page,differences) -> {
-            allMismatchText.append("Page ").append(page).append(":").append("\n\n");
-            for (Difference<Object> difference : differences) {
-                allMismatchText.append("Line ").append(difference.getLineNumber()).append(":").append("\n");
-                allMismatchText.append("Expected String : ").append(difference.getExpected()).append("\n");
-                allMismatchText.append("Actual String : ").append(difference.getActual()).append("\n");
-            }
-            allMismatchText.append("\n\n\n");
-        });
-
-        System.out.println(allMismatchText);
+        if (flag) {
+            StringBuilder allMismatchText = new StringBuilder();
+            allDifference.forEach((page, differences) -> {
+                allMismatchText.append("Page ").append(page).append(":").append("\n\n");
+                for (Difference<Object> difference : differences) {
+                    allMismatchText.append("Line ").append(difference.getLineNumber()).append(":").append("\n");
+                    allMismatchText.append("Expected String : ").append(difference.getExpected()).append("\n");
+                    allMismatchText.append("Actual String : ").append(difference.getActual()).append("\n");
+                }
+                allMismatchText.append("\n\n\n");
+            });
+            System.out.println(allMismatchText);
+        } else {
+            System.out.println("No differences. Good to go.");
+        }
 
     }
 
@@ -190,21 +215,28 @@ public class TextCompareTest {
 
         String expectedPdf = "src/test/resources/text-compare/expected.pdf";
         String actualPdf = "src/test/resources/text-compare/actual.pdf";
-        ResultFormat resultFormat = comparator.compare(expectedPdf,actualPdf);
+        ResultFormat resultFormat = comparator.compare(expectedPdf, actualPdf);
 
+        //Assertion for text mismatch
+        boolean flag = assertThat(resultFormat).hasTextMismatch();
+
+        //Print Differences
         Map<Integer, List<Difference<Object>>> allDifference = resultFormat.getAllDifferences();
-        StringBuilder allMismatchText = new StringBuilder();
-        allDifference.forEach((page,differences) -> {
-            allMismatchText.append("Page ").append(page).append(":").append("\n\n");
-            for (Difference<Object> difference : differences) {
-                allMismatchText.append("Line ").append(difference.getLineNumber()).append(":").append("\n");
-                allMismatchText.append("Expected String : ").append(difference.getExpected()).append("\n");
-                allMismatchText.append("Actual String : ").append(difference.getActual()).append("\n");
-            }
-            allMismatchText.append("\n\n\n");
-        });
-
-        System.out.println(allMismatchText);
+        if (flag) {
+            StringBuilder allMismatchText = new StringBuilder();
+            allDifference.forEach((page, differences) -> {
+                allMismatchText.append("Page ").append(page).append(":").append("\n\n");
+                for (Difference<Object> difference : differences) {
+                    allMismatchText.append("Line ").append(difference.getLineNumber()).append(":").append("\n");
+                    allMismatchText.append("Expected String : ").append(difference.getExpected()).append("\n");
+                    allMismatchText.append("Actual String : ").append(difference.getActual()).append("\n");
+                }
+                allMismatchText.append("\n\n\n");
+            });
+            System.out.println(allMismatchText);
+        } else {
+            System.out.println("No differences. Good to go.");
+        }
 
     }
 
