@@ -24,6 +24,8 @@ public class Config {
     @Getter @Setter
     private String regexToExclude = "";
     @Getter @Setter
+    private List<Region> regionsToExclude = null;
+    @Getter @Setter
     private int dpi = 300;
     @Getter @Setter
     private double threshold = 0;
