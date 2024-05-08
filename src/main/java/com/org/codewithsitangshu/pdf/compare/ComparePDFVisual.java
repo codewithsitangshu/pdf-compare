@@ -104,7 +104,7 @@ public class ComparePDFVisual {
                     BufferedImage scaledActualImage = this.scaleImage.scale(actualImage, width, height);
 
                     // Compare Images
-                    compareImage(scaledExpectedImage, scaledActualImage, width, height);
+                    compareImage(scaledExpectedImage, scaledActualImage, width, height, pageNumber);
                 }
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, "Error comparing images on page " + pageNumber, e);
@@ -135,8 +135,9 @@ public class ComparePDFVisual {
      * @param scaledActualImage   The scaled actual image.
      * @param width               The width of the images.
      * @param height              The height of the images.
+     * @param page                The page number
      */
-    private void compareImage(BufferedImage scaledExpectedImage, BufferedImage scaledActualImage, int width, int height) {
+    private void compareImage(BufferedImage scaledExpectedImage, BufferedImage scaledActualImage, int width, int height , int page) {
         // Compare Images
         int mismatchCount = 0;
 
@@ -144,9 +145,12 @@ public class ComparePDFVisual {
         Graphics2D g = diffImage.createGraphics();
         g.drawImage(scaledExpectedImage, 0, 0, null);
 
+        List<Region> regionToExclude = config.getRegionsToExcludeOnSpecficPage().getOrDefault(page, 
+                    config.getRegionsToExclude());
+
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                if (isInsideAnyRegions(x, y, config.getRegionsToExclude())) {
+                if (isInsideAnyRegions(x, y, regionToExclude)) {
                     // mark region on the diffImage
                     diffImage.setRGB(x, y, Color.DARK_GRAY.getRGB());
                 } else {

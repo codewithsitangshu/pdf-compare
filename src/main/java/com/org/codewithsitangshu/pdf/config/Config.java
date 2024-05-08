@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
 public class Config {
 
@@ -25,6 +26,8 @@ public class Config {
     private String regexToExclude = "";
     @Getter @Setter
     private List<Region> regionsToExclude = null;
+    @Getter @Setter
+    Map<Integer, List<Region>> regionsToExcludeOnSpecficPage = null;
     @Getter @Setter
     private int dpi = 300;
     @Getter @Setter
