@@ -34,12 +34,18 @@ One can download jar for this [link](https://github-registry-files.githubusercon
 
 First, we need to set up the Builder class for PDF comparison. We can use the default values, but if specific configurations are required to compare PDF files, then the Builder class needs to be configured accordingly.
 
-**Default configuration for Builder**
+**Configuration for Builder**
 
 ```java
 private int startPage = 1; // Start page is first page
 private int endPage = -1; // Last page is end page
 private boolean isCompareAllPages = true; // comnpare all page of PDF
+```
+
+For Default Builder configuration here is the code.
+
+```java
+Config config = new Builder().build();
 ```
 
 If you want to specify the start and end pages in your PDF files for comparison, then you need to use the following code to set up the Builder:
