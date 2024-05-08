@@ -5,6 +5,7 @@ import com.org.codewithsitangshu.pdf.compare.Compare;
 import com.org.codewithsitangshu.pdf.compare.CompareMode;
 import com.org.codewithsitangshu.pdf.config.Builder;
 import com.org.codewithsitangshu.pdf.config.Config;
+import com.org.codewithsitangshu.pdf.config.Region;
 import com.org.codewithsitangshu.pdf.result.ResultFormat;
 import org.testng.annotations.Test;
 
@@ -90,5 +91,31 @@ public class VisualCompareText {
         assertThat(resultFormat).hasVisualMismatch(threshold);
 
     }
+
+    @Test
+    public void comparePDFWithRegionsToExclude() throws IOException {
+
+        List<Region> regionsToExclude = Arrays.asList(
+                new Region(200, 200, 2500, 500),
+                new Region(1500, 1800, 3000, 3299)
+            );
+
+        Config config = new Builder()
+                .setCompareAllPages(true)
+                .build();
+        config.setSavePDFPath("src/test/resources/text-compare/result_regions_excluded.pdf");
+        config.setRegionsToExclude(regionsToExclude);
+        Comparator comparator = new Compare(config);
+        comparator.setCompareMode(CompareMode.VISUAL);
+
+        String expectedPdf = "src/test/resources/text-compare/expected.pdf";
+        String actualPdf = "src/test/resources/text-compare/actual.pdf";
+        ResultFormat resultFormat = comparator.compare(expectedPdf, actualPdf);
+
+        assertThat(resultFormat).hasVisualMismatch();
+
+    }
+    
+
 
 }

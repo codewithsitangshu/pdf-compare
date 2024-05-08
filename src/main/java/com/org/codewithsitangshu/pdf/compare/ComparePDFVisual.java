@@ -1,6 +1,7 @@
 package com.org.codewithsitangshu.pdf.compare;
 
 import com.org.codewithsitangshu.pdf.config.Config;
+import com.org.codewithsitangshu.pdf.config.Region;
 import com.org.codewithsitangshu.pdf.extract.images.PDFPageAsImage;
 import com.org.codewithsitangshu.pdf.extract.images.ScaleImage;
 import com.org.codewithsitangshu.pdf.result.ResultFormat;
@@ -145,18 +146,23 @@ public class ComparePDFVisual {
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                int expectedRGB = scaledExpectedImage.getRGB(x, y);
-                int actualRGB = scaledActualImage.getRGB(x, y);
-
-                // If pixel is different, mark it in red on the diffImage
-                if (expectedRGB != actualRGB) {
-                    diffImage.setRGB(x, y, Color.RED.getRGB());
-                    mismatchCount++;
+                if (isInsideAnyRegions(x, y, config.getRegionsToExclude())) {
+                    // mark region on the diffImage
+                    diffImage.setRGB(x, y, Color.DARK_GRAY.getRGB());
                 } else {
-                    // If pixel is the same, set it to black or white based on the original image
-                    int grayscaleValue = (expectedRGB >> 16) & 0xff; // Extract red channel
-                    int newRGB = (grayscaleValue > 128) ? Color.WHITE.getRGB() : Color.BLACK.getRGB();
-                    diffImage.setRGB(x, y, newRGB);
+                    int expectedRGB = scaledExpectedImage.getRGB(x, y);
+                    int actualRGB = scaledActualImage.getRGB(x, y);
+
+                    // If pixel is different, mark it in red on the diffImage
+                    if (expectedRGB != actualRGB) {
+                        diffImage.setRGB(x, y, Color.RED.getRGB());
+                        mismatchCount++;
+                    } else {
+                        // If pixel is the same, set it to black or white based on the original image
+                        int grayscaleValue = (expectedRGB >> 16) & 0xff; // Extract red channel
+                        int newRGB = (grayscaleValue > 128) ? Color.WHITE.getRGB() : Color.BLACK.getRGB();
+                        diffImage.setRGB(x, y, newRGB);
+                    }
                 }
             }
         }
@@ -166,6 +172,11 @@ public class ComparePDFVisual {
         double mismatchPercentage = (mismatchCount / totalPixels) * 100;
 
         this.resultFormatVisual.setDifference(scaledExpectedImage, scaledActualImage, diffImage, mismatchPercentage);
+    }
+
+    private static boolean isInsideAnyRegions(int x, int y, List<Region> regions) {
+        return regions.stream()
+                .anyMatch(region -> region.isInsideRegion(x, y));
     }
 
 }
