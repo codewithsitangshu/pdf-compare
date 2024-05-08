@@ -1,6 +1,6 @@
 # PDF Compare
 
-![Alt Text](compare.gif)
+![compare logo](compare.gif)
 
 
 Are you tired of manually comparing PDF files in your daily automation tasks? If so, you're not alone. I am also encounter the same challenge of needing to compare PDFs not just by text, but also by their visual appearance, pixel by pixel, to ensure no detail is missed. I could not find any good FREE library which is working out of the box to compare the PDF files.
@@ -61,3 +61,96 @@ Config config = new Builder()
     .setSpecificPages(pages)
     .build();
 ```
+
+# Text Compare
+
+To compare text, first, we need to set the compare mode as text:
+
+```java
+Comparator comparator = new Compare(config);
+comparator.setCompareMode(CompareMode.TEXT); // Set CompareMode as Text
+```
+
+### Setup Config for Textual Validation
+
+Now, we can set up a few configurations as per our needs (you can stick with the default config as well) in our Config class object that the Builder class returns.
+
+**Trim White Space**
+
+By default, it will not trim white spaces. But if you want to trim all white spaces, then you need to set the following configuration:
+
+```java
+config.setTrimWhiteSpace(true);
+```
+
+**Exclude String from Comparison**
+
+If you want to exclude a specific string from your comparison, then it will not consider that string for comparison. Here is the configuration:
+
+```java
+config.setExcludeString("I am an Automation test engineer");
+```
+
+**Exclude List of Strings from Comparison**
+
+If you want to exclude a list of strings from your comparison, then it will not consider those strings for comparison. Here is the configuration:
+
+```java
+List<String> stringToExclude = Arrays.asList("I love java", "I am an automation engineer","I love javascript");
+config.setExcludeList(stringToExclude);
+```
+
+**Exclude Regular Expression from Comparison**
+
+If you want to exclude strings based on a given regular expression from your comparison, then it will not consider those strings for comparison. Here is the configuration:
+
+```java
+config.setRegexToExclude("John Daugherty \\(\\d+\\)");
+```
+
+#### Compare and Assert
+
+To compare two PDF files, use the following code:
+
+```java
+String expectedPdf = "src/test/resources/text-compare/expected.pdf";
+String actualPdf = "src/test/resources/text-compare/actual.pdf";
+ResultFormat resultFormat = comparator.compare(expectedPdf, actualPdf);
+```
+
+You can then use the *ResultFormat*  object to assert your validation:
+
+```java
+//Assertion for text mismatch
+boolean flag = assertThat(resultFormat).hasTextMismatch();
+```
+
+#### Print mismatch
+
+You can utilize the *ResultFormat* to print all mismatches based on page and line numbers. Here is the code:
+
+```java
+//Print Differences
+Map<Integer, List<Difference<Object>>> allDifference = resultFormat.getAllDifferences();
+StringBuilder allMismatchText = new StringBuilder();
+allDifference.forEach((page, differences) -> {
+    for (Difference<Object> difference : differences) {
+        allMismatchText.append("Page ").append(page).append(":").append("\n\n");
+        allMismatchText.append("Line ").append(difference.getLineNumber()).append(":").append("\n");
+        allMismatchText.append("Expected String : ").append(difference.getExpected()).append("\n");
+        allMismatchText.append("Actual String : ").append(difference.getActual()).append("\n");
+    }
+    allMismatchText.append("\n\n\n");
+});
+if (allMismatchText.toString().replaceAll("\\n", "").isEmpty()) {
+    allMismatchText.append("No differences. Good to go.");
+}
+System.out.println(allMismatchText);
+```
+Here is the sample output
+
+![text-compare.JPG](text-compare.JPG)
+
+
+
+
