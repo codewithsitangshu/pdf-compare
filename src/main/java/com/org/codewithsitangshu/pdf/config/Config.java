@@ -3,6 +3,7 @@ package com.org.codewithsitangshu.pdf.config;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,15 +20,15 @@ public class Config {
     @Getter @Setter
     private boolean isTrimWhiteSpace = false;
     @Getter @Setter
-    private String excludeString = "";
+    private String excludeString;
     @Getter @Setter
     private List<String> excludeList;
     @Getter @Setter
-    private String regexToExclude = "";
+    private String regexToExclude;
     @Getter @Setter
-    private List<Region> regionsToExclude = null;
+    private List<Region> regionsToExclude;
     @Getter @Setter
-    Map<Integer, List<Region>> regionsToExcludeOnSpecficPage = null;
+    private Map<Integer, List<Region>> regionsToExcludeOnSpecificPage;
     @Getter @Setter
     private int dpi = 300;
     @Getter @Setter

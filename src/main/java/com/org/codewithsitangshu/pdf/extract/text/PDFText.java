@@ -40,7 +40,7 @@ public class PDFText {
         String pdfText = getText(this.currentPage,
                 this.config.isTrimWhiteSpace());
 
-        if (!config.getExcludeString().isEmpty()) {
+        if (config.getExcludeString() != null && !config.getExcludeString().isEmpty()) {
             pdfText = pdfText.replaceAll(config.getExcludeString(), "");
         }
 
@@ -50,7 +50,7 @@ public class PDFText {
             }
         }
 
-        if (!config.getRegexToExclude().isEmpty()) {
+        if (config.getRegexToExclude() != null && !config.getRegexToExclude().isEmpty()) {
             // Compile the regex pattern
             Pattern pattern = Pattern.compile(config.getRegexToExclude());
             // Create a matcher with the input text

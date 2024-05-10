@@ -16,6 +16,7 @@ import org.apache.pdfbox.rendering.PDFRenderer;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -145,8 +146,11 @@ public class ComparePDFVisual {
         Graphics2D g = diffImage.createGraphics();
         g.drawImage(scaledExpectedImage, 0, 0, null);
 
-        List<Region> regionToExclude = config.getRegionsToExcludeOnSpecficPage().getOrDefault(page, 
-                    config.getRegionsToExclude());
+        List<Region> regionToExclude = config.getRegionsToExclude();
+        if(config.getRegionsToExcludeOnSpecificPage() != null &&
+                config.getRegionsToExcludeOnSpecificPage().containsKey(page)) {
+            regionToExclude = config.getRegionsToExcludeOnSpecificPage().get(page);
+        }
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
@@ -179,8 +183,12 @@ public class ComparePDFVisual {
     }
 
     private static boolean isInsideAnyRegions(int x, int y, List<Region> regions) {
-        return regions.stream()
-                .anyMatch(region -> region.isInsideRegion(x, y));
+        if(regions != null) {
+            return regions.stream()
+                    .anyMatch(region -> region.isInsideRegion(x, y));
+        } else {
+            return false;
+        }
     }
 
 }

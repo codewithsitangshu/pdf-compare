@@ -136,7 +136,7 @@ public class VisualCompareText {
         /* If regionsToExclude and regionsToExcludeOnSpecficPage both are set
         then regionsToExcludeOnSpecficPage will take priority */
         config.setRegionsToExclude(regionsToExclude);
-        config.setRegionsToExcludeOnSpecficPage(regionsToExcludeOnSpecficPage);
+        config.setRegionsToExcludeOnSpecificPage(regionsToExcludeOnSpecficPage);
 
         Comparator comparator = new Compare(config);
         comparator.setCompareMode(CompareMode.VISUAL);
