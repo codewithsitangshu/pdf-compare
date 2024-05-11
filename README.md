@@ -102,7 +102,9 @@ config.setExcludeString("I am an Automation test engineer");
 If you want to exclude a list of strings from your comparison, then it will not consider those strings for comparison. Here is the configuration:
 
 ```java
-List<String> stringToExclude = Arrays.asList("I love java", "I am an automation engineer","I love javascript");
+List<String> stringToExclude = Arrays.asList("I love java", 
+        "I am an automation engineer",
+        "I love javascript");
 config.setExcludeList(stringToExclude);
 ```
 
@@ -158,5 +160,94 @@ Here is the sample output
 ![text-compare.JPG](text-compare.JPG)
 
 
+# Visual Compare
 
+To compare PDF files visually, we first need to set the compare mode to visual:
 
+```java
+Comparator comparator = new Compare(config);
+comparator.setCompareMode(CompareMode.VISUAL);
+```
+
+### Setup Config for Visual Validation
+
+Similar to configuring the Config class for textual validation, the same can be done for visual validation.
+
+**Threshold**
+
+By default, the threshold value is set to 0, which means every pixel is checked, and if any mismatches are found, the test highlights the failure and the test fails. However, if you want to allow for a few threshold mismatches, a threshold value can be specified. If the mismatch is below the threshold, the test will pass, but differences will still be highlighted.
+
+```java
+double threshold = 0.1;
+config.setThreshold(threshold);
+```
+
+**Set DPI**
+
+You can specify a specific DPI (dots per inch) value when taking a screenshot. The default value is 300.
+
+```java
+config.setDpi(200);
+```
+
+**Regions To Exclude**
+
+You can specify specific regions to ignore during the checking process. This feature allows you to exclude certain parts of the image from comparison. Additionally, excluded regions will be displayed in gray color. To define exclusion regions, you need to provide the coordinates of two points: the top-left corner and the bottom-right corner of the rectangle.
+
+Here's the code to implement this:
+
+```java
+List<Region> regionsToExclude = Arrays.asList(
+    new Region(200,200,2500,500),
+    new Region(1500,1800,3000,3299));
+config.setRegionsToExclude(regionsToExclude);
+```
+
+If you wish to specify exclusion regions for specific pages, you can do so by passing the regions per page. In this case, if both regionsToExclude (for the entire document) and regionsToExcludeOnSpecificPage (for specific pages) are set, regionsToExcludeOnSpecificPage takes precedence over regionsToExclude.
+
+Here's how you can achieve this:
+
+```java
+List<Region> regionsToExclude = Arrays.asList(
+    new Region(200,200,2500,500),
+    new Region(1500,1800,3000,3299));
+
+Map<Integer,List<Region>> regionsToExcludeOnSpecficPage = Map.of(
+    3,Arrays.asList(new Region(100,100,2500,2500)),
+    6,Arrays.asList(new Region(200,200,600,600)));
+
+/* If both regionsToExclude and regionsToExcludeOnSpecificPage are set,
+   regionsToExcludeOnSpecificPage will take priority */
+config.setRegionsToExclude(regionsToExclude);
+config.setRegionsToExcludeOnSpecificPage(regionsToExcludeOnSpecficPage);
+```
+
+**Result PDF Path**
+
+By default, the Result PDF is saved in the current directory with the name "Result.pdf". However, if you wish to save it in a different location, you can specify the path using the following code:
+
+```java
+config.setSavePDFPath(pathOfResultPDF);
+```
+Make sure to replace pathOfResultPDF with the desired file path where you want to save the Result PDF.
+
+#### Compare and Assert
+
+To compare two PDF files, use the following code:
+
+```java
+String expectedPdf = "src/test/resources/visual-compare/expected.pdf";
+String actualPdf = "src/test/resources/visual-compare/actual.pdf";
+ResultFormat resultFormat = comparator.compare(expectedPdf, actualPdf);
+```
+
+You can then use the *ResultFormat*  object to assert your validation:
+
+```java
+//Assertion for visual mismatch
+boolean flag = assertThat(resultFormat).hasVisualMismatch();
+```
+
+Here is the sample output...
+
+![visual-compare.JPG](visual-compare.JPG)
